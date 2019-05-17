@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parser</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+
+<h4 style="text-align: center; margin: 10px">Парсер Яндекс Маркета</h4>
+
+<div style="width: 720px; margin: 20px auto">
+
+    <div class="input-group mb-3">
+        <input id="url" type="text" class="form-control" placeholder="Url к странице Яндкс Маркета" aria-label="Url к странице Яндкс Маркета" aria-describedby="button-addon2" value="https://market.yandex.ru/catalog/54726/list?clid=817&onstock=1&local-offers-first=1">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Найти</button>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+
+        <div class="text-center" id="loading" style="display: none">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <div id="content">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+</body>
+
+
+<script>
+
+    // Ожидаем пока загрузится DOM
+    $( document ).ready(function() {
+
+        // Обработчик нажатия кнопку Найти
+        $("#button-addon2").on("click", function () {
+
+            var buttonFound = $(this);
+
+            // Отключаем кнопку
+            buttonFound.prop("disabled", true);
+            // Показываем картинку загружается
+            $("#loading").show();
+
+            // Данные которые отправляются запросом
+            var data = {};
+            data.url = $("#url").val();
+
+            // Отправляем запрос на сервер для получения данных со страницы которая парсится
+            $.ajax({
+                url: "/PhoneParser.php",
+                type: 'POST',
+                data: data,
+                dataType: "html",
+                // Таймаут 10 секунд
+                timeout: 10000,
+                // Не кэшировать запрошенные страницы браузером
+                cache: false
+            })
+                .done(function (response) {
+                    // Запрос успешен
+                    // Скрываем картинку загружается
+                    $("#loading").hide();
+                    // Включаем кнопку Найти
+                    buttonFound.prop("disabled", false);
+                    // Устанавливаем строку ответа на страницу
+                    $("#content").html(response);
+
+                })
+                .fail(function (response) {
+                    alert("Ошибка запроса");
+                    console.log(response);
+                });
+
+        });
+
+    });
+
+</script>
+
+
+</html>
